@@ -1,56 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, Coffee, Calendar, Phone, Sparkles, Star, HeartHandshake, ZoomIn, X, CheckCircle2 } from 'lucide-react';
+import { Utensils, Coffee, Calendar, Phone, Sparkles, Star, HeartHandshake, ZoomIn, X, CheckCircle2, Clock, Flame } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 
 export default function FoodMenuPage({ onOpenBooking }) {
+  const [selectedDay, setSelectedDay] = useState('ALL');
   const [activeImageModal, setActiveImageModal] = useState(null);
+  const [customMenu, setCustomMenu] = useState(null);
 
-  // Exact menuData array schema from prompt
-  const menuData = [
+  // Load custom CMS menu if edited by client
+  useEffect(() => {
+    const loadCMS = () => {
+      try {
+        const stored = localStorage.getItem('aafa_cms_data');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.menu) setCustomMenu(parsed.menu);
+        }
+      } catch (e) {}
+    };
+
+    loadCMS();
+    window.addEventListener('aafa_cms_updated', loadCMS);
+    return () => window.removeEventListener('aafa_cms_updated', loadCMS);
+  }, []);
+
+  const defaultMenuData = [
     {
       day: "MONDAY",
-      breakfast: { name: "Puttu, Kadala Curry", img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Rice, Moru Curry, Uppari", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Dal Masala, Rice, Chappathi", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=500&q=80" }
+      tag: "Protein Kickoff",
+      breakfast: { name: customMenu?.MONDAY?.breakfast || "Puttu, Kadala Curry", img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80", tag: "High Fiber" },
+      lunch: { name: customMenu?.MONDAY?.lunch || "Rice, Moru Curry, Uppari", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80", tag: "Probiotic Moru" },
+      dinner: { name: customMenu?.MONDAY?.dinner || "Dal Masala, Rice, Chappathi", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80", tag: "Light & Digestic" }
     },
     {
       day: "TUESDAY",
-      breakfast: { name: "Pasta", img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281290?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Rice, Upperi, Coconut Curry", img: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Chappathi, Chicken Gravy, Rice", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=500&q=80" }
+      tag: "Homestyle Delights",
+      breakfast: { name: customMenu?.TUESDAY?.breakfast || "White Sauce / Italian Pasta", img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281290?auto=format&fit=crop&w=600&q=80", tag: "Italian Fusion" },
+      lunch: { name: customMenu?.TUESDAY?.lunch || "Rice, Upperi, Coconut Curry", img: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=600&q=80", tag: "Fresh Coconut" },
+      dinner: { name: customMenu?.TUESDAY?.dinner || "Chappathi, Chicken Gravy, Rice", img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80", tag: "Spicy Kerala Gravy" }
     },
     {
       day: "WEDNESDAY",
-      breakfast: { name: "Chappathi, Kadala Curry", img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Meen Curry, Rice, Pappad", img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Veg Biryani", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80" }
+      tag: "Midweek Coastal Special",
+      breakfast: { name: customMenu?.WEDNESDAY?.breakfast || "Chappathi, Kadala Curry", img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=600&q=80", tag: "Whole Grain" },
+      lunch: { name: customMenu?.WEDNESDAY?.lunch || "Meen (Fish) Curry, Rice, Pappad", img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80", tag: "Fresh Coastal Fish" },
+      dinner: { name: customMenu?.WEDNESDAY?.dinner || "Fragrant Veg Biryani & Raitha", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80", tag: "Basmati Spice" }
     },
     {
       day: "THURSDAY",
-      breakfast: { name: "Poori, Baji", img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Rice, Sambar", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Ghee Rice, Liver Curry", img: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=500&q=80" }
+      tag: "Tradition & Spice",
+      breakfast: { name: customMenu?.THURSDAY?.breakfast || "Poori, Potato Baji", img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80", tag: "Crispy Golden" },
+      lunch: { name: customMenu?.THURSDAY?.lunch || "Rice, Sambar, Avial", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80", tag: "Traditional Avial" },
+      dinner: { name: customMenu?.THURSDAY?.dinner || "Ghee Rice, Liver Curry / Veg", img: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80", tag: "Pure Cow Ghee" }
     },
     {
       day: "FRIDAY",
-      breakfast: { name: "Idly, Sambar", img: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Rice, Pappad, Sambar", img: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Chappathi, Dal Curry, Rice", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=500&q=80" }
+      tag: "Weekend Countdown",
+      breakfast: { name: customMenu?.FRIDAY?.breakfast || "Soft Idly, Sambar, Coconut Chutney", img: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80", tag: "Steamed Soft" },
+      lunch: { name: customMenu?.FRIDAY?.lunch || "Rice, Crispy Pappad, Sambar", img: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=600&q=80", tag: "Homestyle Meal" },
+      dinner: { name: customMenu?.FRIDAY?.dinner || "Chappathi, Dal Curry, Rice", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80", tag: "High Protein Dal" }
     },
     {
       day: "SATURDAY",
-      breakfast: { name: "Dosa, Chutney", img: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Egg Fried Rice, Raitha", img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Majboos", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80" }
+      tag: "Weekend Feast",
+      breakfast: { name: customMenu?.SATURDAY?.breakfast || "Crispy Dosa, Coconut Chutney", img: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=600&q=80", tag: "Fermented Batter" },
+      lunch: { name: customMenu?.SATURDAY?.lunch || "Egg Fried Rice, Onion Raitha", img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&q=80", tag: "Wok Tossed" },
+      dinner: { name: customMenu?.SATURDAY?.dinner || "Arabian Majboos / Kerala Roast", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80", tag: "Chef Special" }
     },
     {
       day: "SUNDAY",
-      breakfast: { name: "Uppumavu", img: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=500&q=80" },
-      lunch: { name: "Biryani", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=500&q=80" },
-      dinner: { name: "Kanji, Cherupayar, Pappad", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=500&q=80" }
+      tag: "Malabar Biryani Day",
+      breakfast: { name: customMenu?.SUNDAY?.breakfast || "Uppumavu & Fresh Banana", img: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80", tag: "Roasted Rava" },
+      lunch: { name: customMenu?.SUNDAY?.lunch || "Sunday Malabar Chicken Biryani", img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80", tag: "⭐ Sunday Royal Feast" },
+      dinner: { name: customMenu?.SUNDAY?.dinner || "Kanji, Cherupayar, Pappad", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80", tag: "Comforting Rice Kanji" }
     },
   ];
+
+  const filteredMenu = selectedDay === 'ALL'
+    ? defaultMenuData
+    : defaultMenuData.filter(d => d.day === selectedDay);
 
   const marqueeText = "AAFA ROOMS & PG — 1BHK, 2BHK, SINGLE ROOM, DAILY & MONTHLY";
 
@@ -73,23 +102,39 @@ export default function FoodMenuPage({ onOpenBooking }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           
           {/* GLASS BANNER PAGE HEADER */}
-          <div className="rounded-3xl glass-card border border-[#D4A64A]/30 p-8 sm:p-12 text-center mb-10 shadow-2xl relative overflow-hidden">
+          <div className="rounded-3xl glass-card border border-[#D4A64A]/30 p-8 sm:p-12 text-center mb-8 shadow-2xl relative overflow-hidden">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-pill text-[#D4A64A] text-xs font-semibold uppercase tracking-wider mb-4">
               <Utensils className="w-4 h-4 text-[#D4A64A]" />
-              <span>In-House Mess Schedule</span>
+              <span>3x Daily Kerala Mess Schedule</span>
             </div>
             
             <h1 className="text-4xl sm:text-6xl font-extrabold text-[#D4A64A] font-sora tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(212,166,74,0.3)]">
-              FOOD MENU
+              FOOD MENU & DINING
             </h1>
             
-            <p className="text-[#FAF7F0]/80 text-sm sm:text-base max-w-2xl mx-auto">
-              Authentic Kerala homestyle cooking prepared daily with fresh ingredients, pure spices, and FSSAI hygiene standards.
+            <p className="text-[#FAF7F0]/80 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+              Authentic Kerala homestyle cooking prepared daily with fresh coconut, coconut oil, ground spices, and zero artificial preservatives.
             </p>
           </div>
 
+          {/* MEAL TIMINGS STRIP */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-10">
+            {[
+              { meal: '🌅 Breakfast', time: '7:30 AM – 9:30 AM', desc: 'Fresh Puttu, Dosa, Idly & Coffee' },
+              { meal: '☀️ Lunch', time: '12:30 PM – 2:30 PM', desc: 'Kerala Matta Rice & Curries' },
+              { meal: '☕ Evening Snack', time: '5:00 PM – 6:00 PM', desc: 'Pazham Pori & Filter Tea' },
+              { meal: '🌙 Dinner', time: '7:30 PM – 9:30 PM', desc: 'Hot Chappathi & Chicken/Dal' },
+            ].map((timing, idx) => (
+              <div key={idx} className="glass-card rounded-2xl p-4 border border-white/10 text-center">
+                <p className="text-xs font-bold font-sora text-[#D4A64A] mb-1">{timing.meal}</p>
+                <p className="text-xs font-mono font-bold text-[#FAF7F0] mb-0.5">{timing.time}</p>
+                <p className="text-[10px] text-[#FAF7F0]/60">{timing.desc}</p>
+              </div>
+            ))}
+          </div>
+
           {/* GENTLE PULSE FLOATING BADGE */}
-          <div className="flex justify-center mb-12">
+          <div className="flex justify-center mb-10">
             <motion.div
               animate={{
                 scale: [1, 1.03, 1],
@@ -99,11 +144,7 @@ export default function FoodMenuPage({ onOpenBooking }) {
                   "0 0 15px rgba(212, 166, 74, 0.2)"
                 ]
               }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               onClick={() => onOpenBooking('Daily Stay Special (₹499/day)')}
               className="glass-card rounded-2xl px-6 py-3.5 border border-[#D4A64A]/50 flex items-center gap-3 cursor-pointer group"
               data-cursor="expand"
@@ -122,181 +163,147 @@ export default function FoodMenuPage({ onOpenBooking }) {
             </motion.div>
           </div>
 
-          {/* DESKTOP TABLE / MOBILE STACKED CARDS */}
-          
-          {/* 1. DESKTOP GRID (Hidden on Mobile) */}
-          <div className="hidden lg:block mb-16">
-            <div className="rounded-3xl glass-card border border-[#FAF7F0]/15 overflow-hidden shadow-2xl">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#FAF7F0]/15 bg-[#D4A64A]/10 text-xs font-mono uppercase tracking-wider text-[#D4A64A]">
-                    <th className="p-6 w-1/6 font-bold font-sora">Day</th>
-                    <th className="p-6 w-1/4 font-bold font-sora">🌅 Breakfast</th>
-                    <th className="p-6 w-1/4 font-bold font-sora">☀️ Lunch</th>
-                    <th className="p-6 w-1/4 font-bold font-sora">🌙 Dinner</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#FAF7F0]/10">
-                  {menuData.map((row, idx) => (
-                    <motion.tr
-                      key={row.day}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: idx * 0.08 }}
-                      className="hover:bg-[#FAF7F0]/5 transition-colors group"
-                    >
-                      {/* Day Cell */}
-                      <td className="p-6 font-extrabold text-[#D4A64A] font-sora text-lg align-middle">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-[#D4A64A]" />
-                          <span>{row.day}</span>
-                        </div>
-                      </td>
-
-                      {/* Breakfast Cell */}
-                      <td className="p-6 align-middle">
-                        <div className="flex items-center gap-4">
-                          <div 
-                            onClick={() => setActiveImageModal(row.breakfast)}
-                            className="relative w-16 h-16 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 cursor-pointer shadow-md transition-all duration-300 hover:scale-108 hover:shadow-[0_0_15px_rgba(212,166,74,0.4)]"
-                            data-cursor="expand"
-                          >
-                            <img
-                              src={row.breakfast.img}
-                              alt={row.breakfast.name}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-[#0B1220]/20 hover:bg-transparent transition-colors" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-[#FAF7F0] font-sora block leading-tight">
-                              {row.breakfast.name}
-                            </span>
-                            <span className="text-[10px] text-[#FAF7F0]/50 font-mono mt-0.5 block">Fresh Cooked</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Lunch Cell */}
-                      <td className="p-6 align-middle">
-                        <div className="flex items-center gap-4">
-                          <div 
-                            onClick={() => setActiveImageModal(row.lunch)}
-                            className="relative w-16 h-16 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 cursor-pointer shadow-md transition-all duration-300 hover:scale-108 hover:shadow-[0_0_15px_rgba(212,166,74,0.4)]"
-                            data-cursor="expand"
-                          >
-                            <img
-                              src={row.lunch.img}
-                              alt={row.lunch.name}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-[#0B1220]/20 hover:bg-transparent transition-colors" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-[#FAF7F0] font-sora block leading-tight">
-                              {row.lunch.name}
-                            </span>
-                            <span className="text-[10px] text-[#FAF7F0]/50 font-mono mt-0.5 block">Authentic Meals</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Dinner Cell */}
-                      <td className="p-6 align-middle">
-                        <div className="flex items-center gap-4">
-                          <div 
-                            onClick={() => setActiveImageModal(row.dinner)}
-                            className="relative w-16 h-16 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 cursor-pointer shadow-md transition-all duration-300 hover:scale-108 hover:shadow-[0_0_15px_rgba(212,166,74,0.4)]"
-                            data-cursor="expand"
-                          >
-                            <img
-                              src={row.dinner.img}
-                              alt={row.dinner.name}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-[#0B1220]/20 hover:bg-transparent transition-colors" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-semibold text-[#FAF7F0] font-sora block leading-tight">
-                              {row.dinner.name}
-                            </span>
-                            <span className="text-[10px] text-[#FAF7F0]/50 font-mono mt-0.5 block">Hot Serving</span>
-                          </div>
-                        </div>
-                      </td>
-
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* DAY-BY-DAY FILTER TABS */}
+          <div className="flex items-center justify-center gap-2 overflow-x-auto pb-4 mb-10 text-xs font-mono">
+            {['ALL', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'].map((day) => (
+              <button
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-bold border ${
+                  selectedDay === day
+                    ? 'bg-[#D4A64A] text-[#0B1220] border-[#D4A64A] shadow-lg shadow-[#D4A64A]/30 scale-105'
+                    : 'glass-card border-white/10 text-[#FAF7F0]/80 hover:text-[#D4A64A]'
+                }`}
+                data-cursor="expand"
+              >
+                {day === 'ALL' ? '📅 Full Week Schedule' : day}
+              </button>
+            ))}
           </div>
 
-          {/* 2. MOBILE STACKED CARDS (Visible on Mobile) */}
-          <div className="lg:hidden space-y-6 mb-16">
-            {menuData.map((row, idx) => (
+          {/* CARD-LIKE DAY-BY-DAY MENU CARDS GRID */}
+          <div className="space-y-10 mb-16">
+            {filteredMenu.map((row, idx) => (
               <motion.div
                 key={row.day}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.08 }}
-                className="glass-card rounded-3xl p-6 border border-[#FAF7F0]/15 space-y-4 shadow-xl"
+                className="glass-card rounded-3xl p-6 sm:p-8 border border-[#D4A64A]/30 shadow-2xl space-y-6"
               >
-                {/* Mobile Card Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-[#FAF7F0]/10">
-                  <span className="text-xl font-extrabold text-[#D4A64A] font-sora tracking-wide">
-                    {row.day}
-                  </span>
-                  <span className="text-[10px] font-mono text-[#FAF7F0]/60 bg-[#D4A64A]/10 px-2 py-0.5 rounded border border-[#D4A64A]/20">
-                    Day Schedule
+                {/* Day Card Header */}
+                <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#D4A64A]/20 border border-[#D4A64A]/40 text-[#D4A64A] flex items-center justify-center font-bold">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-extrabold text-[#D4A64A] font-sora tracking-wide">
+                        {row.day}
+                      </h3>
+                      <span className="text-[10px] font-mono text-[#FAF7F0]/60 uppercase">
+                        {row.tag}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-mono uppercase bg-[#D4A64A]/15 text-[#D4A64A] px-3.5 py-1 rounded-full border border-[#D4A64A]/30 font-bold">
+                    3 Fresh Meals Included
                   </span>
                 </div>
 
-                {/* Mobile Meals List */}
-                <div className="space-y-4 pt-1">
+                {/* 3 Meal Cards Grid (Breakfast, Lunch, Dinner) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   
-                  {/* Breakfast */}
-                  <div className="flex items-center gap-4">
+                  {/* Breakfast Card */}
+                  <div className="glass-card rounded-2xl p-4 border border-white/10 hover:border-[#D4A64A]/40 transition-all flex flex-col justify-between group">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold font-sora text-[#D4A64A]">🌅 Breakfast</span>
+                      <span className="text-[9px] font-mono bg-white/5 text-[#FAF7F0]/70 px-2 py-0.5 rounded border border-white/10">
+                        {row.breakfast.tag}
+                      </span>
+                    </div>
+
                     <div 
                       onClick={() => setActiveImageModal(row.breakfast)}
-                      className="relative w-14 h-14 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 shadow-md transition-transform duration-300 active:scale-95"
+                      className="relative h-44 rounded-xl overflow-hidden border border-white/10 mb-3 cursor-pointer shadow-md group-hover:scale-[1.02] transition-transform"
+                      data-cursor="expand"
                     >
-                      <img src={row.breakfast.img} alt={row.breakfast.name} className="w-full h-full object-cover" />
+                      <img
+                        src={row.breakfast.img}
+                        alt={row.breakfast.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-mono text-[#FAF7F0]">
+                        <span>Click to Enlarge 🔍</span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-[#D4A64A] font-bold uppercase font-mono">🌅 Breakfast</p>
-                      <p className="text-xs font-semibold text-[#FAF7F0] font-sora mt-0.5">{row.breakfast.name}</p>
-                    </div>
+
+                    <p className="text-sm font-extrabold text-[#FAF7F0] font-sora leading-snug">
+                      {row.breakfast.name}
+                    </p>
                   </div>
 
-                  {/* Lunch */}
-                  <div className="flex items-center gap-4">
+                  {/* Lunch Card */}
+                  <div className="glass-card rounded-2xl p-4 border border-white/10 hover:border-[#D4A64A]/40 transition-all flex flex-col justify-between group">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold font-sora text-[#D4A64A]">☀️ Lunch</span>
+                      <span className="text-[9px] font-mono bg-white/5 text-[#FAF7F0]/70 px-2 py-0.5 rounded border border-white/10">
+                        {row.lunch.tag}
+                      </span>
+                    </div>
+
                     <div 
                       onClick={() => setActiveImageModal(row.lunch)}
-                      className="relative w-14 h-14 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 shadow-md transition-transform duration-300 active:scale-95"
+                      className="relative h-44 rounded-xl overflow-hidden border border-white/10 mb-3 cursor-pointer shadow-md group-hover:scale-[1.02] transition-transform"
+                      data-cursor="expand"
                     >
-                      <img src={row.lunch.img} alt={row.lunch.name} className="w-full h-full object-cover" />
+                      <img
+                        src={row.lunch.img}
+                        alt={row.lunch.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-mono text-[#FAF7F0]">
+                        <span>Click to Enlarge 🔍</span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-[#D4A64A] font-bold uppercase font-mono">☀️ Lunch</p>
-                      <p className="text-xs font-semibold text-[#FAF7F0] font-sora mt-0.5">{row.lunch.name}</p>
-                    </div>
+
+                    <p className="text-sm font-extrabold text-[#FAF7F0] font-sora leading-snug">
+                      {row.lunch.name}
+                    </p>
                   </div>
 
-                  {/* Dinner */}
-                  <div className="flex items-center gap-4">
+                  {/* Dinner Card */}
+                  <div className="glass-card rounded-2xl p-4 border border-white/10 hover:border-[#D4A64A]/40 transition-all flex flex-col justify-between group">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold font-sora text-[#D4A64A]">🌙 Dinner</span>
+                      <span className="text-[9px] font-mono bg-white/5 text-[#FAF7F0]/70 px-2 py-0.5 rounded border border-white/10">
+                        {row.dinner.tag}
+                      </span>
+                    </div>
+
                     <div 
                       onClick={() => setActiveImageModal(row.dinner)}
-                      className="relative w-14 h-14 rounded-2xl overflow-hidden border border-[#D4A64A]/30 shrink-0 shadow-md transition-transform duration-300 active:scale-95"
+                      className="relative h-44 rounded-xl overflow-hidden border border-white/10 mb-3 cursor-pointer shadow-md group-hover:scale-[1.02] transition-transform"
+                      data-cursor="expand"
                     >
-                      <img src={row.dinner.img} alt={row.dinner.name} className="w-full h-full object-cover" />
+                      <img
+                        src={row.dinner.img}
+                        alt={row.dinner.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-mono text-[#FAF7F0]">
+                        <span>Click to Enlarge 🔍</span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-[#D4A64A] font-bold uppercase font-mono">🌙 Dinner</p>
-                      <p className="text-xs font-semibold text-[#FAF7F0] font-sora mt-0.5">{row.dinner.name}</p>
-                    </div>
+
+                    <p className="text-sm font-extrabold text-[#FAF7F0] font-sora leading-snug">
+                      {row.dinner.name}
+                    </p>
                   </div>
 
                 </div>
@@ -371,6 +378,7 @@ export default function FoodMenuPage({ onOpenBooking }) {
               >
                 <button
                   onClick={() => setActiveImageModal(null)}
+                  aria-label="Close Dish Image Preview Modal"
                   className="absolute top-6 right-6 p-2.5 rounded-full bg-[#0B1220]/80 text-[#FAF7F0] hover:bg-[#0B1220] transition-all z-20"
                 >
                   <X className="w-5 h-5" />
