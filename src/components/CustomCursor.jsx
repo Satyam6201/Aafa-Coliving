@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export default function CustomCursor() {
+  const [isFinePointer, setIsFinePointer] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [particles, setParticles] = useState([]);
   const particleIdRef = useRef(0);
@@ -10,24 +11,33 @@ export default function CustomCursor() {
   const mouseY = useMotionValue(-100);
 
   // Smooth elastic lag for trailing ring
-  const springConfig = { damping: 22, stiffness: 250, mass: 0.5 };
+  const springConfig = { damping: 22, stiffness: 260, mass: 0.45 };
   const ringX = useSpring(mouseX, springConfig);
   const ringY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
+    // Only enable custom cursor if device has mouse/fine pointer
+    const mediaQuery = window.matchMedia('(pointer: fine)');
+    setIsFinePointer(mediaQuery.matches);
+
+    const handleMediaChange = (e) => setIsFinePointer(e.matches);
+    mediaQuery.addEventListener('change', handleMediaChange);
+
+    if (!mediaQuery.matches) return;
+
     const handleMouseMove = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
 
       // Spawn gold cursor particle trail (lightweight canvas-less particle system)
-      if (Math.random() < 0.3) {
+      if (Math.random() < 0.25) {
         const newParticle = {
           id: particleIdRef.current++,
           x: e.clientX,
           y: e.clientY,
           size: Math.random() * 4 + 2,
         };
-        setParticles((prev) => [...prev.slice(-15), newParticle]);
+        setParticles((prev) => [...prev.slice(-12), newParticle]);
       }
     };
 
@@ -48,6 +58,7 @@ export default function CustomCursor() {
     window.addEventListener('mouseover', handleMouseOver);
 
     return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseover', handleMouseOver);
     };
@@ -58,10 +69,12 @@ export default function CustomCursor() {
     if (particles.length > 0) {
       const timer = setTimeout(() => {
         setParticles((prev) => prev.slice(1));
-      }, 400);
+      }, 350);
       return () => clearTimeout(timer);
     }
   }, [particles]);
+
+  if (!isFinePointer) return null;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden hidden md:block">
@@ -70,8 +83,8 @@ export default function CustomCursor() {
         <motion.div
           key={p.id}
           initial={{ opacity: 0.8, scale: 1 }}
-          animate={{ opacity: 0, scale: 0.2, y: p.y + 10 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          animate={{ opacity: 0, scale: 0.2, y: p.y + 8 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
           style={{
             position: 'fixed',
             left: p.x,
