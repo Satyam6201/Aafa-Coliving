@@ -43,13 +43,18 @@ export default function CustomCursor() {
 
     const handleMouseOver = (e) => {
       const target = e.target;
+      if (!target || !(target instanceof Element)) return;
+
       const isInteractive =
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'TEXTAREA' ||
         target.closest('button') ||
         target.closest('a') ||
-        target.closest('.glass-card') ||
-        target.getAttribute('data-cursor') === 'expand';
+        target.closest('.glass-card-hover') ||
+        target.closest('[data-cursor="expand"]');
 
       setIsHovered(!!isInteractive);
     };
