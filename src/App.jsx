@@ -7,7 +7,6 @@ import CustomCursor from './components/CustomCursor';
 import FloatingBackground from './components/FloatingBackground';
 import ScrollProgress from './components/ScrollProgress';
 import IntroLoader from './components/IntroLoader';
-import FloatingWidget from './components/FloatingWidget';
 import EnquiryPopup from './components/EnquiryPopup';
 import AIChatbot from './components/AIChatbot';
 import AdminCMSModal from './components/AdminCMSModal';
@@ -175,9 +174,6 @@ export default function App() {
 
         {/* Floating AI Chatbot Concierge */}
         <AIChatbot onOpenBooking={() => handleOpenBooking()} />
-
-        {/* Bottom Right Sticky Action Widget */}
-        <FloatingWidget onOpenBooking={() => setIsEnquiryPopupOpen(true)} />
 
         {/* Footer */}
         <Footer
