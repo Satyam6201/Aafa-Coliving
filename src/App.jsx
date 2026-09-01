@@ -110,17 +110,7 @@ export default function App() {
   const [isEnquiryPopupOpen, setIsEnquiryPopupOpen] = useState(false);
   const [isAdminCMSOpen, setIsAdminCMSOpen] = useState(false);
 
-  // Time-triggered popup after 18 seconds
-  useEffect(() => {
-    const hasSeenPopup = sessionStorage.getItem('aafa_popup_seen');
-    if (!hasSeenPopup) {
-      const timer = setTimeout(() => {
-        setIsEnquiryPopupOpen(true);
-        sessionStorage.setItem('aafa_popup_seen', 'true');
-      }, 18000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+
 
   const handleOpenBooking = (roomTitle = '') => {
     setBookingRoomTitle(roomTitle);
